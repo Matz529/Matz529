@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="et">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="Selle programmi abil saab õppida matemaatikat.">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
+		<title>Arvuta</title>
+		<style>
+			.start {
+				font-size: 16px;
+				font-weight: bold;
+				background-color: #FF0000;
+				color: black;
+				padding: 20px 20px;
+				cursor: pointer;
+				transition: 1.0s;
+				border: 2px solid #000000;
+				border-radius: 10px;
+			}
+			.start:hover {
+				background-color: #FFFF00;
+			}
+			.sisestus {
+				front-size: 16px;
+				border: 2px solid #000000;
+				border-radius: 8px;
+				background-color: #ffffff;
+				color: #000000;
+				transition: 1.0s;
+			}
+			.sisestus:focus {
+				border-color: #ff0000;
+			}
+			.keskele {
+				flex-direction: column;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.vahe {
+				flex-direction: column;
+				display: flex;
+				justify-content: colum;
+				row-gap: 20px;
+				algin-items: center;
+
+			}
+			.uus {
+				font-size: 16px;
+                                font-weight: bold;
+                                background-color: #FF0000;
+                                color: black;
+                                padding: 20px 20px;
+                                cursor: pointer;
+                                transition: 1.0s;
+                                border: 2px solid #000000;
+				border-radius: 10px;
+			}
+			.uus:hover {
+				background-color: ffff00;
+			}
+		</style>
+	</head>
+	<body style="background-color: lightgreen;">
+		<div class="keskele">
+			<h1>Arvuta!</h1>
+			<p>Kui sa vajutad nuppu "START!", siis on sul minut aega vastata liitmise, lahutamise, korrutamise ja jagamise tehetele.<br>
+			Jagamise tehted jaguvad alati täpselt ja lahutamisel võib vastus olla negatiivne.<br>
+			Nii, et otsi klaviatuurilt ülesse miinusmärk ja klõpsa nuppu alustamiseks.</p>
+			<script>
+				const oota = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+			</script>
+			<div class="vahe">
+				<button class="start" onclick='start()';>START!</button>
+				<h3 id="kussa">Siia ilmub küsimus.</h3>
+				<input type="number" inputmode="numeric" class="sisestus" id="sisestus" placeholder="Vastus...">
+				<h3 id="õige-vale">Õige või vale?</h3>
+				<h3 id="skoor">Skoor: 0.</h3>
+				<h3 id="rekord">Siia ilmub rekord.</h3>
+				<button class="uus" onclick='location.reload()';>UUS MÄNG!</button>
+				<p>Ma õppisin alguses programeerimist <a href="https://scratch.mit.edu">scratchis</a>. Soovitan kõigile!</p>
+			</div>
+		</div>
+		<script>
+			let flag = true;
+			let skoor = 0;
+			let vastus = 0;
+			let kusimus = 0;
+			function oigsus() {
+				if (kusimus == vastus) {
+					document.getElementById("õige-vale").textContent = "ÕIGE!";
+					skoor ++;
+					document.getElementById("skoor").textContent = "Skoor: " + skoor + ".";
+				} else {
+					document.getElementById("õige-vale").textContent = "VALE. Õige vastus oli " + vastus + ".";
+					skoor --;
+					document.getElementById("skoor").textContent = "Skoor: " + skoor + ".";
+				}
+			}
+			const sisestus = document.getElementById("sisestus");
+			sisestus.addEventListener("keypress", function(event) {
+				if (event.key === "Enter") {
+					if (sisestus.value.trim() !== "") {
+						kusimus = sisestus.value;
+						sisestus.value = "";
+						oigsus();
+						flag = true;
+					} else {
+						document.getElementById("oige-vale").textContent = "VALE. Sa ei sisestanud midagi";
+					}
+				}
+			});
+			document.getElementById("rekord").textContent = localStorage.getItem("kohe");
+			async function start() {
+				skoor = 0;
+				document.getElementById("skoor").textContent = "Skoor: " + skoor + ".";
+				const algus = Date.now();
+				let esimene = 0;
+				let teine = 0;
+				let tehe = 0;
+				while (Date.now() - algus < 61000) {
+					if (flag == true) {
+						esimene = Math.floor(Math.random() * 101);
+						teine = Math.floor(Math.random() * 101);
+						tehe = Math.floor(Math.random() * 4) + 1;
+						if (tehe == 1) {
+							vastus = esimene + teine;
+							document.getElementById("kussa").textContent = "Kui palju on " + esimene + "+" + teine + "?";
+							flag = false;
+						}
+						if (tehe == 2) {
+							vastus = esimene - teine;
+							document.getElementById("kussa").textContent = "Kui palju on " + esimene + "-" + teine + "?";
+							flag = false;
+						}
+						if (tehe == 3) {
+							vastus = esimene * teine;
+							document.getElementById("kussa").textContent = "Kui palju on " + esimene + "*" + teine + "?";
+							flag = false;
+						}
+						if (tehe == 4) {
+							teine = Math.floor(Math.random() * 11) + 1;
+							esimene = teine * Math.floor(Math.random() * 11);
+							document.getElementById("kussa").textContent = "Kui palju on " + esimene + "/" + teine + "?";
+							vastus = esimene / teine;
+							flag = false;
+						}
+					}
+					await oota(2000);
+				}
+				document.getElementById("õige-vale").textContent = "MÄNG LÄBI. Sinu tulemus: " + skoor + ".";
+				let malust = localStorage.getItem("parim");
+				if (malust === null || skoor > malust) {
+					localStorage.setItem("parim", skoor);
+					let nimi = prompt("Tegid just uue rekordi! Mis su nimi on?");
+					if (nimi == null || nimi == "") {
+						nimi = "tundmatu";
+					}
+					document.getElementById("rekord").textContent = "Rekord: " + localStorage.getItem("parim") + "." +" Selle omanik on " + nimi + ".";
+					localStorage.setItem("kohe", "Rekord: " + localStorage.getItem("parim") + ". Selle omanik on " + nimi + ".");
+				}
+			}
+		</script>
+	</body>
+</html>
